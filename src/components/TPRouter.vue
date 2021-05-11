@@ -1,0 +1,137 @@
+<template>
+  <div class="tp-router">
+    <transition :name="transitionName" :mode="transitionMode">
+      <router-view
+        :fullscreen="$route.meta.fullscreen"
+        :key="$route.params.id"
+        class="sub-view"
+      />
+    </transition>
+  </div>
+</template>
+
+<script lang="ts">
+import { FolderManager } from '@/utils/FolderManager';
+import { Vue, Component } from 'vue-property-decorator';
+import { Route } from 'vue-router';
+
+@Component
+export default class TPRouter extends Vue {
+  public transitionName = 'slide-bottom';
+  public transitionMode: string | null = 'out-in';
+
+  created(): void {
+    this.$router.beforeEach((to: Route, from: Route, next) => {
+      const toDepth = this.getDepth(to);
+      const fromDepth = this.getDepth(from);
+      const toPath = to.fullPath.split('/').slice(0, 2);
+      const fromPath = from.fullPath.split('/').slice(0, 2);
+      this.transitionMode = null;
+
+      let isNextSubFolder = false;
+      let isNextParentFolder = false;
+
+      if (to.name === 'folder' && from.name === 'folder') {
+        const fromFolder = FolderManager.getFolder(from.params.id);
+        if (fromFolder) {
+          if (fromFolder.children.includes(to.params.id)) {
+            isNextSubFolder = true;
+          }
+          isNextParentFolder = !isNextSubFolder;
+        }
+      }
+
+      if (to.meta.fullscreen) {
+        this.transitionMode = 'in-out';
+        this.transitionName = 'slide-fullscreen';
+      } else if (from.meta.fullscreen) {
+        this.transitionMode = 'in-out';
+        this.transitionName = 'slide-fullscreen';
+      } else if (fromPath.join('/') !== toPath.join('/')) {
+        this.transitionMode = null;
+        this.transitionName = 'slide-bottom';
+      } else {
+        this.transitionMode = null;
+        this.transitionName =
+          toDepth < fromDepth ? 'slide-right' : 'slide-left';
+        if (isNextSubFolder) this.transitionName = 'slide-left';
+        if (isNextParentFolder) this.transitionName = 'slide-right';
+      }
+      next();
+    });
+  }
+  public getDepth(route: Route): number {
+    let path = route.fullPath;
+    if (path.endsWith('/')) path = path.slice(0, -1);
+    return path.split('/').length;
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.slide-left-enter,
+.slide-right-leave-active {
+  opacity: 0;
+  transform: translate(60px, 0);
+}
+.slide-left-leave-active,
+.slide-right-enter {
+  opacity: 0;
+  transform: translate(-60px, 0);
+}
+.slide-bottom-enter,
+.slide-bottom-leave-to {
+  opacity: 0;
+  transform: translate(0, 100px);
+}
+.slide-bottom-enter-active,
+.slide-bottom-leave-active,
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+.slide-fullscreen-leave-to,
+.slide-fullscreen-enter {
+  opacity: 0;
+  transform: translate(0, 100%);
+  border-radius: 25% 25% 0 0;
+}
+.tp-router {
+  position: relative;
+  max-width: 100vw;
+  .sub-view {
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 10;
+    min-height: calc(
+      100vh - calc(50px + env(safe-area-inset-top)) -
+        calc(20px + env(safe-area-inset-bottom))
+    );
+    @media #{$isMobile} {
+      min-height: calc(
+        100vh - calc(50px + env(safe-area-inset-top)) -
+          calc(70px + env(safe-area-inset-bottom))
+      );
+    }
+    overflow-x: hidden;
+    background: $background;
+    @media #{$isDark} {
+      background: $background_dark;
+    }
+
+    &[fullscreen] {
+      transition: all 0.71s cubic-bezier(0.55, 0, 0.1, 1);
+      z-index: 11;
+      min-height: 100vh;
+
+      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      @media #{$isDark} {
+        background-image: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+      }
+    }
+  }
+}
+</style>

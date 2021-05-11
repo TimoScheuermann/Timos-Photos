@@ -1,30 +1,73 @@
-import Vue from "vue";
-import VueRouter, { RouteConfig } from "vue-router";
-import Home from "../views/Home.vue";
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
-
-const routes: Array<RouteConfig> = [
-  {
-    path: "/",
-    name: "Home",
-    component: Home,
-  },
-  {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue"),
-  },
-];
+export const prefix = "Timo's Photos | ";
 
 const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes,
+  scrollBehavior() {
+    return { x: 0, y: 0 };
+  },
+  mode: 'history',
+
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: () => import('@/views/Home.vue'),
+      meta: {
+        title: 'Home',
+      },
+    },
+    {
+      path: '/folder/:id/edit',
+      name: 'edit-folder',
+      component: () => import('@/views/folder/EditFolder.vue'),
+      meta: {
+        title: 'Edit Folder',
+        fullscreen: true,
+      },
+    },
+    {
+      path: '/folder/create',
+      name: 'create-folder',
+      component: () => import('@/views/folder/CreateFolder.vue'),
+      meta: {
+        title: 'Create Folder',
+        fullscreen: true,
+      },
+    },
+    {
+      path: '/folder/:id',
+      name: 'folder',
+      component: () => import('@/views/folder/Folder.vue'),
+      meta: {
+        title: 'Folder',
+      },
+    },
+    {
+      path: '/file/:id/edit',
+      name: 'edit-file',
+      component: () => import('@/views/file/EditFile.vue'),
+      meta: {
+        title: 'Edit File',
+        fullscreen: true,
+      },
+    },
+    {
+      path: '/file/:id',
+      name: 'file',
+      component: () => import('@/views/file/File.vue'),
+      meta: {
+        title: 'File',
+      },
+    },
+
+    {
+      path: '*',
+      redirect: { name: 'home' },
+    },
+  ],
 });
 
 export default router;
