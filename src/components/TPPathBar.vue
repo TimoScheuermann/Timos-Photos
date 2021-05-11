@@ -103,14 +103,17 @@ export default class TPPathBar extends Vue {
     &:not(:last-of-type) {
       opacity: 0.5;
     }
+    &:last-of-type {
+      @include gradient-text();
+    }
 
     transition: 0.2s ease-in-out;
     &:hover {
       opacity: 1;
-      color: $success;
     }
   }
   .divider {
+    @include gradient-text();
     margin: 0 5px;
     cursor: default;
   }

@@ -97,3 +97,12 @@
   }
 }
 
+@mixin gradient-text {
+  background-image: linear-gradient(to top right, #ff394a, #ffa642);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+@mixin gradient-bg {
+  background-image: linear-gradient(to top right, #ff394a, #ffa642);
+}

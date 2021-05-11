@@ -1,3 +1,5 @@
+import { TPEventBus } from './TPEventBus';
+
 export function copyToClipboard(text: string): void {
   const dummy = document.createElement('textarea');
   document.body.appendChild(dummy);
@@ -5,6 +7,7 @@ export function copyToClipboard(text: string): void {
   dummy.select();
   document.execCommand('copy');
   document.body.removeChild(dummy);
+  TPEventBus.$emit('copy');
 }
 
 export function convertSize(size: number): string {

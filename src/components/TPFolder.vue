@@ -9,11 +9,14 @@
     @dragstart="drag"
   >
     <template v-if="folder">
-      <i class="ti-folder-open" :style="{ color: folder.color }" />
+      <i
+        :class="'ti-' + (folder.icon || 'folder-open')"
+        :style="{ color: folder.color }"
+      />
       <div class="title">{{ folder.name }}</div>
     </template>
     <template v-else>
-      <i class="ti-folder-plus" />
+      <i class="ti-folder-plus" op />
       <div class="title">Create new folder</div>
     </template>
   </div>
@@ -113,19 +116,17 @@ export default class TPFolder extends Vue {
   }
 
   &.create {
-    background-image: linear-gradient(
-      to right,
-      #f78ca0 0%,
-      #f9748f 19%,
-      #fd868c 60%,
-      #fe9a8b 100%
-    );
+    @include gradient-bg();
     color: #fff;
   }
 
   &:not(.create) {
     -webkit-user-drag: element;
     -webkit-user-drop: element;
+  }
+
+  [op] {
+    opacity: 0.87;
   }
 
   i {

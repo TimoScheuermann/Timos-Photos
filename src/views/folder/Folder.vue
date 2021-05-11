@@ -95,6 +95,11 @@
           </tl-flow>
         </div>
       </div>
+
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   </div>
 </template>
@@ -253,7 +258,7 @@ export default class Folder extends Vue {
       cursor: pointer;
       &[active] {
         transition: 0.2s ease-in-out;
-        color: $primary;
+        @include gradient-text();
       }
     }
   }

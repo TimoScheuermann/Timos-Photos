@@ -8,11 +8,19 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    user: {},
+    userValidated: false,
     dark: true,
     folders: [] as TPFolderModel[],
     files: [] as TPFileModel[],
   },
   getters: {
+    valid: (state: any): boolean => {
+      return state.userValidated;
+    },
+    user: (state: any): Object => {
+      return state.user;
+    },
     dark: (state: any): boolean => {
       return state.dark;
     },
@@ -24,6 +32,16 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    signOut(state: any) {
+      state.userValidated = false;
+      state.user = undefined;
+    },
+    signIn(state: any, user: { group: string }) {
+      if (user && user.group === 'Admin') {
+        state.user = user;
+        state.userValidated = true;
+      }
+    },
     dark(state: any, dark: boolean) {
       state.dark = dark;
     },

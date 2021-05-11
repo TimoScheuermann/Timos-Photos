@@ -2,7 +2,8 @@
   <div id="timos-photos">
     <TPRouter />
     <TPNavbar />
-    <!-- <TPTabbar /> -->
+    <TPUpload />
+    <TPCopyNotification />
   </div>
 </template>
 
@@ -17,12 +18,16 @@ import {
 } from '@/utils/mediaQueries';
 import { FolderManager } from './utils/FolderManager';
 import { FileManager } from './utils/FileManager';
+import TPUpload from './components/TPUpload.vue';
+import TPCopyNotification from './components/TPCopyNotification.vue';
 
 @Component({
   components: {
     TPRouter,
     TPNavbar,
     TPTabbar,
+    TPUpload,
+    TPCopyNotification,
   },
 })
 export default class App extends Vue {
@@ -50,9 +55,11 @@ html {
 }
 
 html {
+  @include custom-scrollbar__light();
   background: $background;
   color: $color;
   @media #{$isDark} {
+    @include custom-scrollbar__dark();
     background: $background_dark;
     color: $color_dark;
   }
@@ -79,13 +86,9 @@ body {
   padding: calc(70px + env(safe-area-inset-top)) 5vw
     calc(20px + env(safe-area-inset-bottom));
 
-  // @media only screen and (max-width: 630px) {
-  //   padding-top: calc(110px + env(safe-area-inset-top));
-  // }
-
-  @media #{$isMobile} {
-    padding-bottom: calc(70px + env(safe-area-inset-bottom));
-  }
+  min-height: calc(
+    100vh - 90px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
 
   max-width: $max-width;
   margin: 0 auto;

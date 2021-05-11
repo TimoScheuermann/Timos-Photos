@@ -10,10 +10,10 @@ module.exports = {
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black-translucent',
     iconPaths: {
-      favicon32: 'pwa/moonstonks.png',
-      favicon16: 'pwa/moonstonks.png',
+      favicon32: 'pwa/logo.png',
+      favicon16: 'pwa/logo.png',
       appleTouchIcon: 'pwa/splash/apple-icon-180.png',
-      maskIcon: 'pwa/moonstonks.png',
+      maskIcon: 'pwa/logo.png',
       msTileImage: 'pwa/splash/manifest-icon-512.png',
     },
   },

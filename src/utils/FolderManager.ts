@@ -22,22 +22,20 @@ export class FolderManager {
       {
         id: '1',
         color: '#08f',
-        children: ['2', '3'],
         name: 'FitnessHub',
         pinned: true,
       },
       {
         id: '2',
         color: 'orange',
-        children: [],
         parent: '1',
         name: 'assets',
+        icon: 'house',
         pinned: false,
       },
       {
         id: '3',
         color: 'lime',
-        children: ['4'],
         name: 'fonts',
         parent: '1',
         pinned: false,
@@ -45,7 +43,6 @@ export class FolderManager {
       {
         id: '4',
         color: 'orange',
-        children: [],
         parent: '3',
         name: 'assets',
         pinned: false,
@@ -95,7 +92,6 @@ type FolderType = {
   parent?: string;
   name: string;
   color: string;
-  children: string[];
   pinned: boolean;
   icon?: string;
 };
@@ -105,7 +101,6 @@ export class TPFolderModel {
   parent?: string;
   name!: string;
   color!: string;
-  children!: string[];
   pinned!: boolean;
   icon?: string;
 
@@ -114,7 +109,6 @@ export class TPFolderModel {
     this.parent = folder.parent;
     this.name = folder.name;
     this.color = folder.color;
-    this.children = folder.children;
     this.pinned = folder.pinned;
     this.icon = folder.icon;
   }
@@ -126,6 +120,12 @@ export class TPFolderModel {
   public get fsize(): string {
     const total = this.files.map((x) => x.size).reduce((a, b) => a + b, 0);
     return convertSize(total);
+  }
+
+  public get children(): string[] {
+    return FolderManager.folders
+      .filter((x) => x.parent && x.parent === this.id)
+      .map((x) => x.id);
   }
 
   public setPinned(id: string, pinned: boolean): TPFolderModel {

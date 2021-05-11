@@ -1,3 +1,4 @@
+import LottieAnimation from 'lottie-vuejs';
 import * as TCComponents from 'tccomponents_vue';
 import 'tccomponents_vue/lib/tccomponents_vue.css';
 import Vue from 'vue';
@@ -6,6 +7,8 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router, { prefix } from './router';
 import store from './store';
+
+Vue.use(LottieAnimation);
 
 Vue.config.productionTip = false;
 

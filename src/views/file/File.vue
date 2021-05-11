@@ -94,14 +94,21 @@ export default class File extends Vue {
     const file = this.file;
     if (!file) return;
 
-    fetch(file.src).then((r) => {
-      return r.blob().then((b) => {
+    fetch(file.src, { method: 'GET' })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.setAttribute('download', file.name);
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
         a.click();
-      });
-    });
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 60000);
+        a.remove();
+      })
+      .catch((err) => console.error('err: ', err));
   }
 
   public togglePinFile(): void {

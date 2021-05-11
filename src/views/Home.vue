@@ -3,7 +3,7 @@
     <div content>
       <TPTitle subtitle="home" title="Folders" />
       <br />
-      <tl-grid minWidth="130" gap="20">
+      <tl-grid arrangement="auto-fill" minWidth="130" gap="20">
         <TPFolder />
         <TPFolder v-for="f in homeFolders" :key="f.id" :folder="f" />
       </tl-grid>
