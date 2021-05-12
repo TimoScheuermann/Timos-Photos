@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { TPFileModel } from '@/utils/FileManager';
-import { TPFolderModel } from '@/utils/FolderManager';
+import { FileManager, TPFileModel } from '@/utils/FileManager';
+import { FolderManager, TPFolderModel } from '@/utils/FolderManager';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
@@ -40,6 +40,9 @@ export default new Vuex.Store({
       if (user && user.group === 'Admin') {
         state.user = user;
         state.userValidated = true;
+
+        FolderManager.loadFolders();
+        FileManager.loadFiles();
       }
     },
     dark(state: any, dark: boolean) {

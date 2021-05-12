@@ -17,7 +17,7 @@
           :dark="$store.getters.dark"
           :frosted="true"
           title="Name"
-          v-model="name"
+          v-model="dto.name"
         />
 
         <div class="select">
@@ -40,12 +40,15 @@
       <br />
       <tl-flow>
         <tc-button
+          :disabled="submitting"
           icon="reply"
           name="Update File"
           tfbackground="success"
           variant="opaque"
+          @click="update"
         />
         <tc-button
+          :disabled="submitting"
           icon="repeat"
           name="reset"
           tfbackground="alarm"
@@ -53,6 +56,7 @@
           @click="reset"
         />
         <tc-button
+          :disabled="submitting"
           icon="blocked"
           name="cancel"
           tfbackground="error"
@@ -66,7 +70,8 @@
 
 <script lang="ts">
 import TPTitle from '@/components/TPTitle.vue';
-import { FileManager, TPFileModel } from '@/utils/FileManager';
+import backend from '@/utils/backend';
+import { FileManager, PatchFileDto, TPFileModel } from '@/utils/FileManager';
 import { FolderManager, TPFolderModel } from '@/utils/FolderManager';
 import { Vue, Component } from 'vue-property-decorator';
 
@@ -76,9 +81,12 @@ import { Vue, Component } from 'vue-property-decorator';
   },
 })
 export default class EditFile extends Vue {
-  public name = '';
-  public tags: string[] = [];
-  public folderId = '';
+  public submitting = false;
+  public dto: PatchFileDto = {
+    name: '',
+    tags: [],
+    folderId: '',
+  };
 
   async mounted(): Promise<void> {
     if (!this.file) {
@@ -103,12 +111,18 @@ export default class EditFile extends Vue {
     return FolderManager.folders;
   }
 
+  public folderSelected(folder: string[]): void {
+    if (folder.length > 0) console.log(folder);
+  }
+
   public reset(): void {
     const file = this.file;
     if (file) {
-      this.name = file.name;
-      this.tags = file.tags;
-      this.folderId = file.folderId;
+      this.dto = {
+        name: file.name,
+        tags: file.tags,
+        folderId: file.folderId,
+      };
     }
   }
 
@@ -116,8 +130,19 @@ export default class EditFile extends Vue {
     this.$router.push({ name: 'file', params: { id: this.id } });
   }
 
-  public folderSelected(folder: string[]): void {
-    if (folder.length > 0) console.log(folder);
+  public update(): void {
+    if (this.submitting) return;
+    this.submitting = true;
+    backend
+      .patch('photos/file/' + this.id, { ...this.file, ...this.dto })
+      .then(({ data }) => {
+        FileManager.updateFile(data);
+        this.$router.push({ name: 'file', params: { id: data.id } });
+      })
+      .catch((error) => {
+        console.log(error);
+        this.submitting = false;
+      });
   }
 }
 </script>

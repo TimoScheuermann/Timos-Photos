@@ -14,7 +14,7 @@
       />
       <br />
 
-      <img :src="file.src" width="100%" height="100%" alt="" />
+      <img :src="file.src" alt="" />
 
       <tl-flow horizontal="space-between" class="actions">
         <button class="action" @click="togglePinFile">
@@ -58,6 +58,7 @@ import TPPathBar from '@/components/TPPathBar.vue';
 import TPTitle from '@/components/TPTitle.vue';
 import { FileManager, TPFileModel } from '@/utils/FileManager';
 import { copyToClipboard } from '@/utils/functions';
+import { TPEventBus } from '@/utils/TPEventBus';
 import { Vue, Component } from 'vue-property-decorator';
 
 @Component({
@@ -108,7 +109,9 @@ export default class File extends Vue {
         }, 60000);
         a.remove();
       })
-      .catch((err) => console.error('err: ', err));
+      .catch((error) =>
+        TPEventBus.$emit('error', error.message || 'Failed to download file.')
+      );
   }
 
   public togglePinFile(): void {
@@ -120,7 +123,7 @@ export default class File extends Vue {
   public deleteFile(): void {
     const file = this.file;
     if (!file) return;
-    FileManager.deleteFile(file.id);
+    FileManager.deleteFile(file.id, file.folderId);
   }
 
   public share(): void {
@@ -135,6 +138,10 @@ export default class File extends Vue {
 .view-file {
   img {
     border-radius: $border-radius;
+    max-height: 80vh;
+    margin: 0 auto;
+    display: block;
+    max-width: 100%;
   }
 
   .tags {

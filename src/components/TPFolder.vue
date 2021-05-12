@@ -69,7 +69,7 @@ export default class TPFolder extends Vue {
   }
 
   public deleteFolder(): void {
-    FolderManager.deleteFolder(this.folder.id);
+    FolderManager.deleteFolder(this.folder.id, this.folder.parent);
   }
 
   public allowDrop(e: DragEvent): void {

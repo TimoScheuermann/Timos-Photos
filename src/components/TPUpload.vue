@@ -19,6 +19,9 @@
 </template>
 
 <script lang="ts">
+import backend from '@/utils/backend';
+import { FileManager } from '@/utils/FileManager';
+import { TPEventBus } from '@/utils/TPEventBus';
 import { Vue, Component } from 'vue-property-decorator';
 
 @Component
@@ -47,7 +50,15 @@ export default class TPUpload extends Vue {
         .forEach((f) => {
           const formData = new FormData();
           formData.append('file', f, f.name);
-          // TODO: Post to backend
+          formData.append('folderId', this.$route.params.id);
+          backend
+            .post('photos/file', formData)
+            .then(({ data }) => {
+              FileManager.updateFile(data);
+            })
+            .catch((error) => {
+              TPEventBus.$emit('error', error.message);
+            });
         });
     }
   }

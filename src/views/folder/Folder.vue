@@ -47,7 +47,10 @@
 
       <br />
       <tl-flow horizontal="space-between">
-        <TPTitle title="Photos" subtitle="showing 10" />
+        <TPTitle
+          :title="'Photo' + (files.length !== 1 ? 's' : '')"
+          :subtitle="'showing ' + files.length"
+        />
         <div class="layouts">
           <div class="box" :active="layout" />
           <div class="layout" @click="setLayout(0)" :active="layout === 0">
@@ -201,7 +204,7 @@ export default class Folder extends Vue {
   public deleteFolder(): void {
     const folder = this.folder;
     if (!folder) return;
-    FolderManager.deleteFolder(folder.id);
+    FolderManager.deleteFolder(folder.id, folder.parent);
   }
 
   public drag(e: DragEvent, file: TPFileModel): void {
@@ -258,7 +261,7 @@ export default class Folder extends Vue {
       cursor: pointer;
       &[active] {
         transition: 0.2s ease-in-out;
-        @include gradient-text();
+        color: #ff7246;
       }
     }
   }

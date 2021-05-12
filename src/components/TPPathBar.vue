@@ -83,6 +83,7 @@ export default class TPPathBar extends Vue {
     border-color: rgba($color_dark, 0.1);
   }
 
+  padding-bottom: 4px;
   display: flex;
   align-items: center;
   user-select: none;
@@ -99,7 +100,7 @@ export default class TPPathBar extends Vue {
       text-transform: uppercase;
     }
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     &:not(:last-of-type) {
       opacity: 0.5;
     }

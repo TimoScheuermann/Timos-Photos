@@ -1,6 +1,7 @@
 import router from '@/router';
 import store from '@/store';
 import { backendURL } from './constants';
+import { TPEventBus } from './TPEventBus';
 
 const lsKey = 'dev-timos-design-auth';
 
@@ -8,13 +9,13 @@ export function getToken(): string | null {
   return localStorage.getItem(lsKey);
 }
 
-export function getUserFromJWT(): Object {
+export function getUserFromJWT(): { group: string } {
   const base64Url = (getToken() || 'A.B.C').split('.')[1];
   const base64 = base64Url.replace('-', '+').replace('_', '/');
   return JSON.parse(window.atob(base64));
 }
 
-export async function signOut() {
+export async function signOut(): Promise<void> {
   localStorage.removeItem(lsKey);
   await router.push({ name: 'login' });
   store.commit('signOut');
@@ -53,7 +54,7 @@ export function persistLogin(token: string): void {
   localStorage.setItem(lsKey, token);
 }
 
-export function signIn(provider = 'google') {
+export function signIn(provider = 'google'): void {
   localStorage.removeItem(lsKey);
 
   const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=400,height=500,left=100,top=100`;
@@ -77,7 +78,7 @@ export function signIn(provider = 'google') {
           router.push({ name: 'home' });
         }
       } else {
-        console.error('Unallowed origin', e.origin);
+        TPEventBus.$emit('error', 'Unallowed origin', e.origin);
       }
     }
   };

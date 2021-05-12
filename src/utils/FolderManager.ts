@@ -1,6 +1,9 @@
+import router from '@/router';
 import store from '@/store';
+import backend from './backend';
 import { FileManager, TPFileModel } from './FileManager';
 import { convertSize } from './functions';
+import { TPEventBus } from './TPEventBus';
 
 export class FolderManager {
   private static commit(folders: FolderType[]) {
@@ -16,47 +19,53 @@ export class FolderManager {
   }
 
   public static async loadFolders(): Promise<void> {
-    // if (this.folders.length > 0) return;
-    // TODO:
-    this.commit([
-      {
-        id: '1',
-        color: '#08f',
-        name: 'FitnessHub',
-        pinned: true,
-      },
-      {
-        id: '2',
-        color: 'orange',
-        parent: '1',
-        name: 'assets',
-        icon: 'house',
-        pinned: false,
-      },
-      {
-        id: '3',
-        color: 'lime',
-        name: 'fonts',
-        parent: '1',
-        pinned: false,
-      },
-      {
-        id: '4',
-        color: 'orange',
-        parent: '3',
-        name: 'assets',
-        pinned: false,
-      },
-    ]);
+    try {
+      const { data } = await backend.get('photos/folders');
+      this.commit(data);
+      return;
+    } catch (_) {
+      TPEventBus.$emit('error', 'Unauthorized to load folders.');
+    }
   }
 
   public static getFolder(id: string): TPFolderModel | null {
     return this.folders.filter((x) => x.id === id)[0] || null;
   }
 
-  public static async deleteFolder(id: string): Promise<void> {
-    // TODO:
-    if (id == '') return;
+  public static deleteFolder(id: string, parent?: string): void {
+    if (!id || id.length === 0) return;
+    backend
+      .delete('photos/folder/' + id)
+      .then(({ data }) => {
+        if (data) {
+          const folders = this.folders.filter((x) => x.id !== id);
+          store.commit('folders', folders);
+          if (parent) {
+            router.push({ name: 'folder', params: { id: parent } });
+          } else {
+            router.push({ name: 'home' });
+          }
+        }
+      })
+      .catch((error) => {
+        TPEventBus.$emit('error', error.message);
+      });
+  }
+
+  public static updateFolder(folder: FolderType): void {
+    let exists = false;
+    const model = new TPFolderModel(folder);
+    const folders = this.folders.map((x) => {
+      if (x.id === folder.id) {
+        exists = true;
+        return model;
+      }
+      return x;
+    });
+    if (!exists) {
+      folders.push(model);
+    }
+    store.commit('folders', folders);
   }
 
   public static getFiles(folderId: string): TPFileModel[] {
@@ -64,11 +73,13 @@ export class FolderManager {
   }
 
   public static pinFolder(id: string): void {
+    backend.post('photos/pin/folder/' + id);
     const folders = this.folders.map((x) => x.setPinned(id, true));
     this.commit(folders);
   }
 
   public static unpinFolder(id: string): void {
+    backend.post('photos/unpin/folder/' + id);
     const folders = this.folders.map((x) => x.setPinned(id, false));
     this.commit(folders);
   }
@@ -83,18 +94,30 @@ export class FolderManager {
 
   public static changeParent(folderId: string, parentId: string | null): void {
     if (!folderId || folderId === parentId) return;
-    console.log('Changeing parent of folder ' + folderId + ' to ' + parentId);
+    const folder = this.getFolder(folderId);
+    if (!folder) return;
+    backend
+      .patch('photos/folder/' + folderId, {
+        ...folder,
+        parent: parentId || undefined,
+      })
+      .then(({ data }) => {
+        this.updateFolder(data);
+      })
+      .catch((error) => {
+        TPEventBus.$emit('error', error.message);
+      });
   }
 }
 
-type FolderType = {
+interface FolderType {
   id: string;
   parent?: string;
   name: string;
   color: string;
   pinned: boolean;
   icon?: string;
-};
+}
 
 export class TPFolderModel {
   id!: string;
@@ -142,4 +165,19 @@ export class TPFolderModel {
       a?.name.localeCompare(b?.name)
     );
   }
+}
+
+export interface CreateFolderDto {
+  name: string;
+  color: string;
+  parent?: string;
+  icon?: string;
+}
+
+export interface PatchFolderDto {
+  name?: string;
+  color?: string;
+  parent?: string;
+  icon?: string;
+  pinned?: boolean;
 }

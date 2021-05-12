@@ -26,6 +26,7 @@ export default class TPTitle extends Vue {
   .title {
     font-size: 25px;
     font-weight: bold;
+    overflow-wrap: break-word;
   }
 }
 </style>

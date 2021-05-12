@@ -1,5 +1,8 @@
+import router from '@/router';
 import store from '@/store';
+import backend from './backend';
 import { convertSize } from './functions';
+import { TPEventBus } from './TPEventBus';
 
 export class FileManager {
   private static commit(files: FileType[]) {
@@ -15,104 +18,60 @@ export class FileManager {
   }
 
   public static async loadFiles(): Promise<void> {
-    // if (this.files.length > 0) return;
-    // TODO:
-    this.commit([
-      {
-        id: '1',
-        folderId: '1',
-        created: Date.now(),
-        name: 'FitnessHub - Home',
-        size: Date.now(),
-        pinned: false,
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '2',
-        folderId: '2',
-        created: Date.now(),
-        name: '2 mit einem sehr sehr sehr sher langen namen, lol was geht ab',
-        size: Date.now(),
-        pinned: false,
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '3',
-        folderId: '3',
-        created: Date.now(),
-        name: '3.jpg',
-        size: Date.now(),
-        pinned: true,
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '4',
-        folderId: '4',
-        created: Date.now(),
-        name: '4',
-        size: Date.now(),
-        pinned: false,
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '5',
-        folderId: '1',
-        pinned: true,
-        created: Date.now(),
-        name: '5',
-        size: Date.now(),
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '6',
-        folderId: '2',
-        created: Date.now(),
-        name: '6',
-        size: Date.now(),
-        pinned: false,
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-      {
-        id: '7',
-        folderId: '2',
-        created: Date.now(),
-        name: '7',
-        pinned: true,
-        size: Date.now(),
-        tags: ['fitnesshub', 'screenshot', 'home'],
-        src:
-          'https://timos.s3.eu-central-1.amazonaws.com/drive/fitnesshub/18bb2653-50ac-435f-903f-67b367c4f032.jpeg',
-      },
-    ]);
+    try {
+      const { data } = await backend.get('photos/files');
+      this.commit(data);
+      return;
+    } catch (_) {
+      TPEventBus.$emit('error', 'Unauthorized to load files.');
+    }
   }
 
   public static getFile(id: string): TPFileModel | null {
     return this.files.filter((x) => x.id === id)[0] || null;
   }
 
-  public static deleteFile(id: string): void {
-    // TODO:
-    if (id === '') return;
+  public static deleteFile(id: string, folderId: string): void {
+    if (!id || id.length === 0) return;
+    backend
+      .delete('photos/file/' + id)
+      .then(({ data }) => {
+        if (data) {
+          const files = this.files.filter((x) => x.id !== id);
+          store.commit('files', files);
+          if (router.currentRoute.name === 'file')
+            router.push({ name: 'folder', params: { id: folderId } });
+        }
+      })
+      .catch((error) => {
+        TPEventBus.$emit('error', error.message);
+      });
+  }
+
+  public static updateFile(file: FileType): void {
+    let exists = false;
+    const model = new TPFileModel(file);
+    const files = this.files.map((x) => {
+      if (x.id === file.id) {
+        exists = true;
+        return model;
+      }
+      return x;
+    });
+    if (!exists) {
+      files.push(model);
+    }
+    store.commit('files', files);
   }
 
   public static pinFile(id: string): void {
+    backend.post('photos/pin/file/' + id);
     const files = this.files.map((x) => x.setPinned(id, true));
     this.commit(files);
   }
 
   public static unpinFile(id: string): void {
+    backend.post('photos/unpin/file/' + id);
     const files = this.files.map((x) => x.setPinned(id, false));
     this.commit(files);
   }
@@ -136,6 +95,8 @@ type FileType = {
   tags: string[];
   folderId: string;
   size: number;
+  width: number;
+  height: number;
 };
 
 export class TPFileModel {
@@ -147,6 +108,8 @@ export class TPFileModel {
   tags!: string[];
   folderId!: string;
   size!: number;
+  width!: number;
+  height!: number;
 
   constructor(file: FileType) {
     this.id = file.id;
@@ -157,6 +120,8 @@ export class TPFileModel {
     this.tags = file.tags;
     this.folderId = file.folderId;
     this.size = file.size;
+    this.width = file.width;
+    this.height = file.height;
   }
 
   public get fsize(): string {
@@ -188,4 +153,14 @@ export class TPFileModel {
         /* */
       });
   }
+}
+
+export interface CreateFileDto {
+  folderId?: string;
+}
+export interface PatchFileDto {
+  name?: string;
+  pinned?: boolean;
+  tags?: string[];
+  folderId?: string;
 }

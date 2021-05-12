@@ -59,7 +59,7 @@ export default class TPFileActions extends Vue {
   }
 
   public deleteFile(): void {
-    FileManager.deleteFile(this.file.id);
+    FileManager.deleteFile(this.file.id, this.file.folderId);
   }
 }
 </script>

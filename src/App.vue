@@ -4,6 +4,7 @@
     <TPNavbar />
     <TPUpload />
     <TPCopyNotification />
+    <TPErrorNotification />
   </div>
 </template>
 
@@ -16,10 +17,10 @@ import {
   registerMediaQueries,
   unregisterMediaQueries,
 } from '@/utils/mediaQueries';
-import { FolderManager } from './utils/FolderManager';
-import { FileManager } from './utils/FileManager';
+
 import TPUpload from './components/TPUpload.vue';
 import TPCopyNotification from './components/TPCopyNotification.vue';
+import TPErrorNotification from './components/TPErrorNotificiation.vue';
 
 @Component({
   components: {
@@ -28,14 +29,12 @@ import TPCopyNotification from './components/TPCopyNotification.vue';
     TPTabbar,
     TPUpload,
     TPCopyNotification,
+    TPErrorNotification,
   },
 })
 export default class App extends Vue {
   mounted(): void {
     registerMediaQueries();
-
-    FolderManager.loadFolders();
-    FileManager.loadFiles();
   }
 
   beforeDestroy(): void {

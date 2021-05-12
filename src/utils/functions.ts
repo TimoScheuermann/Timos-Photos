@@ -7,6 +7,7 @@ export function copyToClipboard(text: string): void {
   dummy.select();
   document.execCommand('copy');
   document.body.removeChild(dummy);
+
   TPEventBus.$emit('copy');
 }
 

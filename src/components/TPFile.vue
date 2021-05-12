@@ -88,6 +88,10 @@ export default class TPFile extends Vue {
       margin-bottom: 5px;
     }
 
+    .tl-flow {
+      flex-wrap: nowrap;
+    }
+
     .size {
       font-weight: bold;
       opacity: 0.5;

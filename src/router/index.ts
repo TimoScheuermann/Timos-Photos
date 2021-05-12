@@ -62,10 +62,19 @@ const router = new VueRouter({
         title: 'File',
       },
     },
-
     {
       path: '*',
       redirect: { name: 'home' },
+    },
+
+    {
+      path: '',
+      name: 'login',
+      component: () => import('@/views/Login.vue'),
+      meta: {
+        title: 'Login',
+        fullscreen: true,
+      },
     },
   ],
 });

@@ -7,6 +7,7 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router, { prefix } from './router';
 import store from './store';
+import { getUserFromJWT, verfiyUser } from './utils/auth';
 
 Vue.use(LottieAnimation);
 
@@ -15,6 +16,18 @@ Vue.config.productionTip = false;
 for (const component in TCComponents) {
   Vue.component(component, TCComponents[component]);
 }
+
+router.beforeEach(async (to: Route, from: Route, next) => {
+  if (!store.getters.valid && (await verfiyUser())) {
+    store.commit('signIn', getUserFromJWT());
+  }
+
+  if (to.name !== 'login' && !store.getters.valid) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
+});
 
 router.afterEach((to: Route) => {
   document.getElementsByTagName('title')[0].innerHTML = prefix + to.meta.title;

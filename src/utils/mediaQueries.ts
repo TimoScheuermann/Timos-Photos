@@ -3,7 +3,7 @@ import store from '@/store';
 export const mqDarkmode = window.matchMedia('(prefers-color-scheme: dark)');
 
 function mediaListenerDarkmode(event: MediaQueryListEvent): void {
-  store.commit('darkmode', event && event.matches);
+  store.commit('dark', event && event.matches);
 }
 
 export function registerMediaQueries(): void {
