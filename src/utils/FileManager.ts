@@ -81,8 +81,17 @@ export class FileManager {
   }
 
   public static changeFolderId(fileId: string, folderId: string): void {
-    if (!folderId || !fileId) return;
-    console.log('Changeing folder of file ' + folderId + ' to ' + folderId);
+    const file = this.getFile(fileId);
+    if (!file) return;
+    if (!folderId || folderId === file.folderId) return;
+    backend
+      .patch('photos/file/' + fileId, { ...file, folderId: folderId })
+      .then(({ data }) => {
+        this.updateFile(data);
+      })
+      .catch((error) => {
+        TPEventBus.$emit('error', error.message);
+      });
   }
 }
 
