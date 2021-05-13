@@ -10,7 +10,7 @@
   >
     <template v-if="folder">
       <i
-        :class="'ti-' + (folder.icon || 'folder-open')"
+        :class="'ti-' + (folder.icon || 'folder')"
         :style="{ color: folder.color }"
       />
       <div class="title">{{ folder.name }}</div>

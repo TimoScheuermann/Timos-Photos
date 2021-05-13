@@ -9,7 +9,7 @@
       </tl-flow>
 
       <p v-else-if="results.folders.length === 0 && results.files.length === 0">
-        Nothing found
+        <span error>Nothing found</span>
       </p>
 
       <template v-if="results.folders && results.folders.length > 0">

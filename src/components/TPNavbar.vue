@@ -1,26 +1,28 @@
 <template>
   <div class="tp-navbar">
-    <transition-group name="trans">
-      <div v-if="!search" key="0" class="trans-wrapper">
-        <div class="title" @click="goHome">Timo's <span>Photos</span></div>
+    <div class="container">
+      <transition-group name="trans">
+        <div v-if="!search" key="0" class="trans-wrapper">
+          <div class="title" @click="goHome">Timo's <span>Photos</span></div>
+        </div>
+        <div v-if="search" key="1" class="trans-wrapper">
+          <form @submit.prevent="submit">
+            <tc-input
+              v-if="search"
+              key="1"
+              :dark="$store.getters.dark"
+              :frosted="true"
+              icon="lens"
+              placeholder="Search photos, folders, tags"
+              v-model="query"
+              pattern="*"
+            />
+          </form>
+        </div>
+      </transition-group>
+      <div class="search" v-if="$store.getters.valid" @click="search = !search">
+        <i class="ti-lens"></i>
       </div>
-      <div v-if="search" key="1" class="trans-wrapper">
-        <form @submit.prevent="submit">
-          <tc-input
-            v-if="search"
-            key="1"
-            :dark="$store.getters.dark"
-            :frosted="true"
-            icon="lens"
-            placeholder="Search photos, folders, tags"
-            v-model="query"
-            pattern="*"
-          />
-        </form>
-      </div>
-    </transition-group>
-    <div class="search" @click="search = !search">
-      <i class="ti-lens"></i>
     </div>
   </div>
 </template>
@@ -34,7 +36,7 @@ export default class TPNavbar extends Vue {
   public query = '';
 
   public goHome(): void {
-    if (this.$route.name !== 'home') {
+    if (!['home', 'login'].includes(this.$route.name || '')) {
       this.$router.push({ name: 'home' });
     }
   }
@@ -60,8 +62,6 @@ export default class TPNavbar extends Vue {
   right: 0;
   z-index: 100;
   padding: 0 5vw;
-  padding-top: env(safe-area-inset-top);
-  height: 50px;
   box-shadow: $shadow;
 
   @include backdrop-blur($color_dark);
@@ -71,8 +71,15 @@ export default class TPNavbar extends Vue {
     @include backdrop-blur($color);
     color: $color_dark;
   }
-  display: flex;
-  align-items: center;
+
+  .container {
+    padding-top: env(safe-area-inset-top);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    position: relative;
+  }
 
   .title {
     cursor: pointer;
@@ -86,20 +93,20 @@ export default class TPNavbar extends Vue {
 
   .trans-wrapper {
     position: absolute;
-    left: 5vw;
-    top: 0;
+    top: env(safe-area-inset-top);
     display: flex;
     height: 50px;
     align-items: center;
   }
   .tc-input {
-    width: 50vw;
+    width: 60vw;
     max-width: 300px;
+    margin-left: 0;
   }
 
   .search {
     position: absolute;
-    right: 5vw;
+    right: 0;
     cursor: pointer;
 
     padding: 10px;
