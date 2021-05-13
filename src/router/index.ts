@@ -69,6 +69,16 @@ const router = new VueRouter({
 
     {
       path: '',
+      name: 'search',
+      component: () => import('@/views/Search.vue'),
+      meta: {
+        title: 'Search',
+        fullscreen: true,
+      },
+    },
+
+    {
+      path: '',
       name: 'login',
       component: () => import('@/views/Login.vue'),
       meta: {

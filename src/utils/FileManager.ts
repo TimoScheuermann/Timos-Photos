@@ -165,11 +165,12 @@ export class TPFileModel {
 }
 
 export interface CreateFileDto {
-  folderId?: string;
+  folderId: string;
 }
+
 export interface PatchFileDto {
-  name?: string;
-  pinned?: boolean;
-  tags?: string[];
-  folderId?: string;
+  name: string;
+  pinned: boolean;
+  tags: string[];
+  folderId: string;
 }

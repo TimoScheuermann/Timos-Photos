@@ -91,6 +91,7 @@ export default class EditFolder extends Vue {
     name: '',
     color: '',
     icon: '',
+    pinned: false,
   };
 
   async mounted(): Promise<void> {
@@ -118,6 +119,7 @@ export default class EditFolder extends Vue {
         name: folder.name,
         color: folder.color,
         icon: folder.icon,
+        pinned: !!folder.pinned,
       };
     }
   }

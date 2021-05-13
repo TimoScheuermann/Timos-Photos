@@ -86,6 +86,7 @@ export default class EditFile extends Vue {
     name: '',
     tags: [],
     folderId: '',
+    pinned: false,
   };
 
   async mounted(): Promise<void> {
@@ -122,6 +123,7 @@ export default class EditFile extends Vue {
         name: file.name,
         tags: file.tags,
         folderId: file.folderId,
+        pinned: !!file.pinned,
       };
     }
   }

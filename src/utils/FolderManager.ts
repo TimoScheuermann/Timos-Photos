@@ -99,7 +99,7 @@ export class FolderManager {
     backend
       .patch('photos/folder/' + folderId, {
         ...folder,
-        parent: parentId || undefined,
+        parent: parentId || null,
       })
       .then(({ data }) => {
         this.updateFolder(data);
@@ -175,9 +175,9 @@ export interface CreateFolderDto {
 }
 
 export interface PatchFolderDto {
-  name?: string;
-  color?: string;
+  name: string;
+  color: string;
   parent?: string;
   icon?: string;
-  pinned?: boolean;
+  pinned: boolean;
 }
